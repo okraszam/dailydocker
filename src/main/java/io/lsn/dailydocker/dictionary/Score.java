@@ -1,14 +1,14 @@
 package io.lsn.dailydocker.dictionary;
 
-public class LottoScore {
+public class Score {
 
     private int index;
     private String date;
     private String[] numbers;
 
-    public LottoScore() {}
+    public Score() {}
 
-    public LottoScore(int index, String date, String[] numbers) {
+    public Score(int index, String date, String[] numbers) {
         this.index = index;
         this.date = date;
         this.numbers = numbers;
