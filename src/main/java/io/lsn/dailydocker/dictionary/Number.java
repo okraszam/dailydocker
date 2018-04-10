@@ -3,7 +3,7 @@ package io.lsn.dailydocker.dictionary;
 public class Number {
 
     private int number;
-    private int occurrence;
+    private Integer occurrence;
 
     public Number() {
     }
@@ -21,11 +21,11 @@ public class Number {
         this.number = number;
     }
 
-    public int getOccurrence() {
+    public Integer getOccurrence() {
         return occurrence;
     }
 
-    public void setOccurrence(int occurrence) {
+    public void setOccurrence(Integer occurrence) {
         this.occurrence = occurrence;
     }
 }

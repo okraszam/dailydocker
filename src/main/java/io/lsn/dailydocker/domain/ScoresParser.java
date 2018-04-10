@@ -39,6 +39,24 @@ public class ScoresParser {
         return numbers;
     }
 
+    public void sortNumbersByOccurrenceDesc(List<Number> numbers) {
+        numbers.sort(new Comparator<Number>() {
+            @Override
+            public int compare(Number o1, Number o2) {
+                return o1.getOccurrence().compareTo(o2.getOccurrence());
+            }
+        });
+    }
+
+    public void sortNumbersByOccurrenceAsc(List<Number> numbers) {
+        numbers.sort(new Comparator<Number>() {
+            @Override
+            public int compare(Number o1, Number o2) {
+                return o2.getOccurrence().compareTo(o1.getOccurrence());
+            }
+        });
+    }
+
     private void parseArchivalScores(List<Score> lottoScores) {
         try (BufferedReader scoresDataStream = new BufferedReader(new InputStreamReader(new URL(lottoArchivalScoresPath).openStream()))) {
             String tempString;
