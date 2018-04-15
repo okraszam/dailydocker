@@ -4,10 +4,14 @@ import io.lsn.dailydocker.dictionary.Score;
 import io.lsn.dailydocker.dictionary.Number;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,43 +22,17 @@ public class ScoresParser {
     private static final String lottoArchivalScoresPath = "http://www.mbnet.com.pl/dl.txt";
     private static final String lottoLatestScorePath = "http://app.lotto.pl/wyniki/?type=dl";
 
-    /**
-     *
-     * @return Zwracana jest kolekcja wyników losowań wraz z datami i id
-     */
-    public List<Score> parseScores() {
+    public List<Score> parseURLScores() {
         List<Score> scores = new ArrayList<>();
         parseArchivalScores(scores);
         parseLatestScore(scores);
         return scores;
     }
 
-    /**
-     *
-     * @return Zwracana jest kolekcja liczb od 1 do 49 wraz z ilością ich wystąpień
-     */
-    public List<Number> parseNumbers() {
+    public List<Number> parseURLNumbers() {
         List<Number> numbers = new ArrayList<>();
-        parseListOfNumbersWithOccurrence(buildListOfScoresArrays(parseScores()), numbers);
+        parseListOfNumbersWithOccurrence(buildListOfScoresArrays(parseURLScores()), numbers);
         return numbers;
-    }
-
-    public void sortNumbersByOccurrenceDesc(List<Number> numbers) {
-        numbers.sort(new Comparator<Number>() {
-            @Override
-            public int compare(Number o1, Number o2) {
-                return o1.getOccurrence().compareTo(o2.getOccurrence());
-            }
-        });
-    }
-
-    public void sortNumbersByOccurrenceAsc(List<Number> numbers) {
-        numbers.sort(new Comparator<Number>() {
-            @Override
-            public int compare(Number o1, Number o2) {
-                return o2.getOccurrence().compareTo(o1.getOccurrence());
-            }
-        });
     }
 
     private void parseArchivalScores(List<Score> lottoScores) {
@@ -95,10 +73,6 @@ public class ScoresParser {
         }
     }
 
-    private boolean doesListContainsThisScore(List<Score> scores, Score score) {
-        return scores.stream().allMatch(s -> s.getDate().equalsIgnoreCase(score.getDate()));
-    }
-
     private void parseListOfNumbersWithOccurrence(List<String[]> scoresArrays, List<Number> numbers) {
         List<Integer> duplicatedNumbers = new ArrayList<>();
         List<Integer> numbersOccurrence = new ArrayList<>();
@@ -118,8 +92,52 @@ public class ScoresParser {
         }
     }
 
-    private List<String[]> buildListOfScoresArrays(List<Score> scores) {
+    public List<String[]> buildListOfScoresArrays(List<Score> scores) {
         return scores.stream().map(score -> score.getNumbers()).collect(Collectors.toList());
     }
 
+    private boolean doesListContainsThisScore(List<Score> scores, Score score) {
+        return scores.stream().allMatch(s -> s.getDate().equalsIgnoreCase(score.getDate()));
+    }
+
+    public List<String> getListOfArchivedScoreFiles() {
+        List<String> listOfFiles = new ArrayList<>();
+        try {
+            Files.newDirectoryStream(Paths.get("src/main/resources/scores"), path -> path.toFile().isFile())
+                    .forEach(file -> listOfFiles.add(file.getFileName().toString()));
+        } catch (Exception e) {
+            logger.error("Something went wrong with listing files in app resources.\n" + e.toString());
+            return new ArrayList<>();
+        }
+
+        return listOfFiles;
+    }
+
+    public boolean checkIfFileExistInResources(String fileNameWithExtension) {
+        return getListOfArchivedScoreFiles().stream().anyMatch(file -> file.equalsIgnoreCase(fileNameWithExtension));
+    }
+
+    public void saveURLScoresToFile (List<Score> scores) throws IOException {
+        if (scores == null || scores.isEmpty()) {
+            scores = parseURLScores();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formatted = now.format(formatter);
+
+        Path path = Paths.get("src/main/resources/scores/urlScores " + formatted + ".txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            scores.stream()
+                    .forEach(score -> {
+                        try {
+                            writer.write(String.valueOf(score.getIndex())
+                                    + ". " + score.getDate()
+                                    + " " + Arrays.asList(score.getNumbers()).stream().collect(Collectors.joining(",")));
+                            writer.newLine();
+                        } catch (Exception e) {
+                            logger.error("Something went wrong with saving latest scores to file.\n" + e.toString());
+                        }
+                    });
+        }
+    }
 }
