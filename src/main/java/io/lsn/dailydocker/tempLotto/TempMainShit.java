@@ -27,8 +27,6 @@ public class TempMainShit {
         String end = service.getURLListOfDatesOfDraws().get(4);
 
         service.saveURLScoresForSpecificDateToFile(beginning, end);
-
-
     }
 
 }

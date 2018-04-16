@@ -15,7 +15,7 @@ public interface SearchesMapper {
     void saveSearchParameter(SearchParameter parameter);
 
     @Select("select * from searches")
-    List<SearchParameter> getSearchParameterList();
+    List<SearchParameter> getSearches();
 
     @Delete("truncate table searches")
     void truncateSearchesTable();

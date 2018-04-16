@@ -1,5 +1,8 @@
 package io.lsn.dailydocker.dictionary;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class SearchParameter {
 
     private String searchType;
@@ -11,11 +14,29 @@ public class SearchParameter {
     public SearchParameter() {
     }
 
-    public SearchParameter(String searchType, String beginning, String end, String searchDate, boolean asc) {
-        this.searchType = searchType;
-        this.beginning = beginning;
-        this.end = end;
-        this.searchDate = searchDate;
+    public SearchParameter(String searchType, String beginning, String end, boolean asc) {
+        if (searchType == null) {
+            this.searchType = "";
+        } else {
+            this.searchType = searchType;
+        }
+
+        if (beginning == null) {
+            this.beginning = "";
+        } else {
+            this.beginning = beginning;
+        }
+
+        if (end == null) {
+            this.end = "";
+        } else {
+            this.end = end;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
+        this.searchDate = now.format(formatter);
+
         this.asc = asc;
     }
 

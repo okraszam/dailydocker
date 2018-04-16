@@ -1,6 +1,5 @@
 package io.lsn.dailydocker.service;
 
-import io.lsn.dailydocker.dao.ScoresMapper;
 import io.lsn.dailydocker.dao.SearchesMapper;
 import io.lsn.dailydocker.dictionary.Number;
 import io.lsn.dailydocker.dictionary.Score;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,19 +22,14 @@ public class ScoresService {
     private ScoresParser parser;
 
     @Autowired
-    private ScoresMapper scoresMapper;
-
-    @Autowired
     private SearchesMapper searchesMapper;
-
 
     public ScoresService() {
     }
 
     @Autowired
-    public ScoresService(ScoresParser parser, ScoresMapper scoresMapper, SearchesMapper searchesMapper) {
+    public ScoresService(ScoresParser parser, SearchesMapper searchesMapper) {
         this.parser = parser;
-        this.scoresMapper = scoresMapper;
         this.searchesMapper = searchesMapper;
     }
 
@@ -67,11 +59,13 @@ public class ScoresService {
     }
 
     public List<String> getURLListOfDatesOfDraws() {
+        searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfDatesOfDraws", null, null, false));
         return parser.parseURLScores().stream()
                 .map(score -> score.getDate()).collect(Collectors.toList());
     }
 
     public String[] getURLScoreForSpecificDate(String date) {
+        searchesMapper.saveSearchParameter(new SearchParameter("service.getURLScoreForSpecificDate", "requestFor", date, false));
         return parser.parseURLScores().stream()
                 .filter(score -> score.getDate().equalsIgnoreCase(date))
                 .findFirst().get()
@@ -86,19 +80,15 @@ public class ScoresService {
             this.sortNumbersByOccurrenceDesc(numbers);
         }
         if (number == null || number == 0) {
+            searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfNumbersWithOccurrence", "badRequest", "badRequest", asc));
             return numbers;
         }
         if (number < 1 || number > 49) {
+            searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfNumbersWithOccurrence", "badRequest", "badRequest", asc));
             return new ArrayList<>();
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
-        String requestDateTime = now.format(formatter);
-        SearchParameter parameter = new SearchParameter("getURLListOfNumbersWithOccurrence", "", "", requestDateTime, asc);
-
-        searchesMapper.saveSearchParameter(parameter);
-
+        searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfNumbersWithOccurrence", null, null, asc));
         return numbers.stream().limit(number).collect(Collectors.toList());
     }
 
@@ -133,6 +123,7 @@ public class ScoresService {
             this.sortNumbersByOccurrenceDesc(numbers);
         }
 
+        searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfNumbersWithOccurrenceForSpecificDates", beginning, end, asc));
         return numbers;
     }
 
@@ -142,16 +133,28 @@ public class ScoresService {
                 && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(beginning))
                 && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(end))
                 && getIdOfScore(scores, beginning) < getIdOfScore(scores, end)) {
+
+            searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfScoresForSpecificDates", beginning, end, false));
             return scores.stream()
                     .filter(score -> score.getIndex() >= getIdOfScore(scores, beginning) && score.getIndex() <= getIdOfScore(scores, end))
                     .collect(Collectors.toList());
         }
 
+        searchesMapper.saveSearchParameter(new SearchParameter("service.getURLListOfScoresForSpecificDates", "badRequest", "badRequest", false));
         return new ArrayList<>();
     }
 
     public void saveURLScoresForSpecificDateToFile(String beginning, String end) throws IOException {
         List<Score> scores = getURLListOfScoresForSpecificDates(beginning, end);
         parser.saveURLScoresToFile(scores);
+        searchesMapper.saveSearchParameter(new SearchParameter("service.saveURLScoresForSpecificDateToFile", beginning, end, false));
+    }
+
+    public List<SearchParameter> getSearchesFromDB() {
+        return searchesMapper.getSearches();
+    }
+
+    public void truncateSearchesTable() {
+        searchesMapper.truncateSearchesTable();
     }
 }

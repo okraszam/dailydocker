@@ -57,6 +57,16 @@ public class DefaultController {
         service.saveURLScoresForSpecificDateToFile(parameter.getBeginning(), parameter.getEnd());
     }
 
+    @RequestMapping(value = "/getSearchesFromDB", method = RequestMethod.GET)
+    public List<SearchParameter> getSearchesFromDB() {
+        return service.getSearchesFromDB();
+    }
+
+    @RequestMapping(value = "/truncateSearchesTable", method = RequestMethod.POST)
+    public void truncateSearchesTable() {
+        service.truncateSearchesTable();
+    }
+
 
 
     @RequestMapping(value = "/parseURLScores", method = RequestMethod.GET)
@@ -78,4 +88,10 @@ public class DefaultController {
     public boolean checkIfFileExistInResources(@RequestParam("fileNameWithExtension") String fileNameWithExtension) {
         return parser.checkIfFileExistInResources(fileNameWithExtension);
     }
+
+    @RequestMapping(value = "/cleanResourcesFolder", method = RequestMethod.POST)
+    public void cleanResourcesFolder() {
+        parser.cleanResourcesFolder();
+    }
+
 }

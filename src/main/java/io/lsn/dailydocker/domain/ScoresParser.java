@@ -1,9 +1,12 @@
 package io.lsn.dailydocker.domain;
 
 import io.lsn.dailydocker.dao.ScoresMapper;
+import io.lsn.dailydocker.dao.SearchesMapper;
 import io.lsn.dailydocker.dictionary.Score;
 import io.lsn.dailydocker.dictionary.Number;
+import io.lsn.dailydocker.dictionary.SearchParameter;
 import org.apache.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +31,9 @@ public class ScoresParser {
     @Autowired
     private ScoresMapper scoresMapper;
 
+    @Autowired
+    private SearchesMapper searchesMapper;
+
     public ScoresParser() {
     }
 
@@ -41,7 +47,7 @@ public class ScoresParser {
         parseArchivalScores(scores);
         parseLatestScore(scores);
         scoresMapper.truncateScoresTable();
-        scoresMapper.insertURLScores(scores);
+//        scoresMapper.insertURLScores(scores);
         return scores;
     }
 
@@ -128,15 +134,16 @@ public class ScoresParser {
             logger.error("Something went wrong with listing files in app resources.\n" + e.toString());
             return new ArrayList<>();
         }
-
+        searchesMapper.saveSearchParameter(new SearchParameter("parser.getListOfArchivedScoreFiles", null, null, false));
         return listOfFiles;
     }
 
     public boolean checkIfFileExistInResources(String fileNameWithExtension) {
+        searchesMapper.saveSearchParameter(new SearchParameter("parser.checkIfFileExistInResources", null, null, false));
         return getListOfArchivedScoreFiles().stream().anyMatch(file -> file.equalsIgnoreCase(fileNameWithExtension));
     }
 
-    public void saveURLScoresToFile (List<Score> scores) throws IOException {
+    public void saveURLScoresToFile(List<Score> scores) throws IOException {
         if (scores == null || scores.isEmpty()) {
             scores = parseURLScores();
         }
@@ -158,5 +165,17 @@ public class ScoresParser {
                         }
                     });
         }
+        searchesMapper.saveSearchParameter(new SearchParameter("parser.saveURLScoresToFile", null, null, false));
+    }
+
+    public void cleanResourcesFolder() {
+        List<String> fileNames = getListOfArchivedScoreFiles();
+        List<File> files = new ArrayList<>();
+
+        fileNames.stream()
+                .forEach(fileName -> files.add(new File("src/main/resources/scores/" + fileName)));
+
+        files.stream().forEach(file -> file.delete());
+        searchesMapper.saveSearchParameter(new SearchParameter("parser.cleanResourcesFolder", null, null, false));
     }
 }
