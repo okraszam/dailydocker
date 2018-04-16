@@ -1,0 +1,28 @@
+version: '0.1'
+services:
+  database:
+    container_name: "database"
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: qwerty
+      MYSQL_DATABASE: dailydockerdb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    ports:
+      - 3306:3306
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+  application:
+    container_name: "application"
+    image: tomcat:latest
+    environment:
+      JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
+      JDBC_USER: admin
+      JDBC_PASS: admin
+    ports:
+      - 80:8080
+    volumes:
+      - ./tomcat/webapps:/usr/local/tomcat/webapps
+    links:
+      - database

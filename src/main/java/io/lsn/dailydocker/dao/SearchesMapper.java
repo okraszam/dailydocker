@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper
 public interface SearchesMapper {
 
-    @Insert("insert into searches(searchType,beginning,end,searchDate)" +
-            "values(#{searchType},#{beginning},#{end},#{searchDate})")
+    @Insert("insert into searches(searchType,beginning,end,searchDate,`asc`)" +
+            "values(#{searchType},#{beginning},#{end},#{searchDate},#{asc})")
     void saveSearchParameter(SearchParameter parameter);
 
     @Select("select * from searches")

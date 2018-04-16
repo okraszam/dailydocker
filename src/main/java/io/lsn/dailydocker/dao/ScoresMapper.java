@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface ScoresMapper {
 
-    @Insert("insert into scores(index,date,numbersString)" +
+    @Insert("insert into scores(`index`,date,numbersString)" +
             "values" +
             "<foreach collection=\"list\" item=\"score\" index=\"index\" separator=\",\">" +
             "(#{score.index},#{score.date},#{score.numbersString})" +

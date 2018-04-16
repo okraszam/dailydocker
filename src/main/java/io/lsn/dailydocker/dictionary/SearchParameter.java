@@ -6,15 +6,17 @@ public class SearchParameter {
     private String beginning;
     private String end;
     private String searchDate;
+    private boolean asc;
 
     public SearchParameter() {
     }
 
-    public SearchParameter(String searchType, String beginning, String end, String searchDate) {
+    public SearchParameter(String searchType, String beginning, String end, String searchDate, boolean asc) {
         this.searchType = searchType;
         this.beginning = beginning;
         this.end = end;
         this.searchDate = searchDate;
+        this.asc = asc;
     }
 
     public String getSearchType() {
@@ -48,4 +50,13 @@ public class SearchParameter {
     public void setSearchDate(String searchDate) {
         this.searchDate = searchDate;
     }
+
+    public boolean getAsc() {
+        return asc;
+    }
+
+    public void setAsc(boolean asc) {
+        this.asc = asc;
+    }
+
 }

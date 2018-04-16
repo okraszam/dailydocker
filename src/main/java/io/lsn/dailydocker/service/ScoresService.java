@@ -1,12 +1,17 @@
 package io.lsn.dailydocker.service;
 
+import io.lsn.dailydocker.dao.ScoresMapper;
+import io.lsn.dailydocker.dao.SearchesMapper;
 import io.lsn.dailydocker.dictionary.Number;
 import io.lsn.dailydocker.dictionary.Score;
+import io.lsn.dailydocker.dictionary.SearchParameter;
 import io.lsn.dailydocker.domain.ScoresParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,14 +21,24 @@ import java.util.stream.Collectors;
 @Service
 public class ScoresService {
 
-    private ScoresParser parser = new ScoresParser();
+    @Autowired
+    private ScoresParser parser;
+
+    @Autowired
+    private ScoresMapper scoresMapper;
+
+    @Autowired
+    private SearchesMapper searchesMapper;
+
 
     public ScoresService() {
     }
 
     @Autowired
-    public ScoresService(ScoresParser parser) {
+    public ScoresService(ScoresParser parser, ScoresMapper scoresMapper, SearchesMapper searchesMapper) {
         this.parser = parser;
+        this.scoresMapper = scoresMapper;
+        this.searchesMapper = searchesMapper;
     }
 
     private int getIdOfScore(List<Score> scores, String date) {
@@ -33,20 +48,20 @@ public class ScoresService {
                 .getIndex();
     }
 
-    public void sortNumbersByOccurrenceDesc(List<Number> numbers) {
-        numbers.sort(new Comparator<Number>() {
-            @Override
-            public int compare(Number o1, Number o2) {
-                return o1.getOccurrence().compareTo(o2.getOccurrence());
-            }
-        });
-    }
-
-    public void sortNumbersByOccurrenceAsc(List<Number> numbers) {
+    private void sortNumbersByOccurrenceDesc(List<Number> numbers) {
         numbers.sort(new Comparator<Number>() {
             @Override
             public int compare(Number o1, Number o2) {
                 return o2.getOccurrence().compareTo(o1.getOccurrence());
+            }
+        });
+    }
+
+    private void sortNumbersByOccurrenceAsc(List<Number> numbers) {
+        numbers.sort(new Comparator<Number>() {
+            @Override
+            public int compare(Number o1, Number o2) {
+                return o1.getOccurrence().compareTo(o2.getOccurrence());
             }
         });
     }
@@ -73,30 +88,18 @@ public class ScoresService {
         if (number == null || number == 0) {
             return numbers;
         }
-        if (number < 1 && number > 49) {
+        if (number < 1 || number > 49) {
             return new ArrayList<>();
         }
 
-        return numbers.stream().limit(number-1).collect(Collectors.toList());
-    }
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
+        String requestDateTime = now.format(formatter);
+        SearchParameter parameter = new SearchParameter("getURLListOfNumbersWithOccurrence", "", "", requestDateTime, asc);
 
-    public List<Score> getURLListOfScoresForSpecificDates(String beginning, String end) {
-        List<Score> scores = parser.parseURLScores();
-        if (beginning != null && end != null && !beginning.equalsIgnoreCase(end)
-                && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(beginning))
-                && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(end))
-                && getIdOfScore(scores, beginning) < getIdOfScore(scores, end)) {
-            return scores.stream()
-                    .filter(score -> score.getIndex() >= getIdOfScore(scores, beginning) && score.getIndex() <= getIdOfScore(scores, end))
-                    .collect(Collectors.toList());
-        }
+        searchesMapper.saveSearchParameter(parameter);
 
-        return new ArrayList<>();
-    }
-
-    public void saveURLScoresForSpecificDateToFile(String beginning, String end) throws IOException {
-        List<Score> scores = getURLListOfScoresForSpecificDates(beginning, end);
-        parser.saveURLScoresToFile(scores);
+        return numbers.stream().limit(number).collect(Collectors.toList());
     }
 
     public List<Number> getURLListOfNumbersWithOccurrenceForSpecificDates(String beginning, String end, boolean asc) {
@@ -131,5 +134,24 @@ public class ScoresService {
         }
 
         return numbers;
+    }
+
+    public List<Score> getURLListOfScoresForSpecificDates(String beginning, String end) {
+        List<Score> scores = parser.parseURLScores();
+        if (beginning != null && end != null && !beginning.equalsIgnoreCase(end)
+                && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(beginning))
+                && scores.stream().anyMatch(score -> score.getDate().equalsIgnoreCase(end))
+                && getIdOfScore(scores, beginning) < getIdOfScore(scores, end)) {
+            return scores.stream()
+                    .filter(score -> score.getIndex() >= getIdOfScore(scores, beginning) && score.getIndex() <= getIdOfScore(scores, end))
+                    .collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    public void saveURLScoresForSpecificDateToFile(String beginning, String end) throws IOException {
+        List<Score> scores = getURLListOfScoresForSpecificDates(beginning, end);
+        parser.saveURLScoresToFile(scores);
     }
 }

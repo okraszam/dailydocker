@@ -1,8 +1,10 @@
 package io.lsn.dailydocker.domain;
 
+import io.lsn.dailydocker.dao.ScoresMapper;
 import io.lsn.dailydocker.dictionary.Score;
 import io.lsn.dailydocker.dictionary.Number;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -10,6 +12,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -22,10 +25,23 @@ public class ScoresParser {
     private static final String lottoArchivalScoresPath = "http://www.mbnet.com.pl/dl.txt";
     private static final String lottoLatestScorePath = "http://app.lotto.pl/wyniki/?type=dl";
 
+    @Autowired
+    private ScoresMapper scoresMapper;
+
+    public ScoresParser() {
+    }
+
+    @Autowired
+    public ScoresParser(ScoresMapper scoresMapper) {
+        this.scoresMapper = scoresMapper;
+    }
+
     public List<Score> parseURLScores() {
         List<Score> scores = new ArrayList<>();
         parseArchivalScores(scores);
         parseLatestScore(scores);
+        scoresMapper.truncateScoresTable();
+        scoresMapper.insertURLScores(scores);
         return scores;
     }
 
@@ -39,8 +55,11 @@ public class ScoresParser {
         try (BufferedReader scoresDataStream = new BufferedReader(new InputStreamReader(new URL(lottoArchivalScoresPath).openStream()))) {
             String tempString;
             while((tempString = scoresDataStream.readLine()) != null) {
+                String date = tempString.split(" ")[1].split("\\.")[2] + "."
+                        + tempString.split(" ")[1].split("\\.")[1] + "."
+                        + tempString.split(" ")[1].split("\\.")[0];
                 lottoScores.add(new Score(Integer.valueOf(tempString.replaceAll("\\D.*", "")),
-                        tempString.split(" ")[1],
+                        date,
                         tempString.replaceAll("[\\d]*. [\\d]{2}.[\\d]{2}.[\\d]{4} ","").trim().split(",")));
             }
         } catch (IOException e) {
@@ -58,7 +77,7 @@ public class ScoresParser {
                 if (tempString.length() > 2) {
                     String[] date = tempString.split("-");
                     score.setIndex(scores.size() + 1);
-                    score.setDate(date[2] + "." + date[1] + "." + date[0]);
+                    score.setDate(date[0] + "." + date[1] + "." + date[2]);
                 } else {
                     numbers[i] = tempString;
                     i++;
@@ -122,10 +141,10 @@ public class ScoresParser {
             scores = parseURLScores();
         }
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
         String formatted = now.format(formatter);
 
-        Path path = Paths.get("src/main/resources/scores/urlScores " + formatted + ".txt");
+        Path path = Paths.get("src/main/resources/scores/urlScores_" + formatted + ".txt");
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             scores.stream()
                     .forEach(score -> {
