@@ -10,11 +10,12 @@ import java.util.List;
 @Mapper
 public interface ScoresMapper {
 
-    @Insert("insert into scores(`index`,date,numbersString)" +
-            "values" +
-            "<foreach collection=\"list\" item=\"score\" index=\"index\" separator=\",\">" +
+    @Insert({"<script>" +
+            "insert into scores(`index`,date,numbersString)" +
+            "VALUES <foreach item='score' collection='list' separator=','>" +
             "(#{score.index},#{score.date},#{score.numbersString})" +
-            "</foreach>")
+            "</foreach>" +
+            "</script>"})
     void insertURLScores(List<Score> scores);
 
     @Select("select * from scores")

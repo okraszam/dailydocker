@@ -1,5 +1,7 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
+/tomcat
+/database
 
 ### STS ###
 .apt_generated
@@ -7,7 +9,6 @@
 .factorypath
 .project
 .settings
-.springBeans
 .sts4-cache
 
 ### IntelliJ IDEA ###

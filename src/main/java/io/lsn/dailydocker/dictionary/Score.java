@@ -22,8 +22,8 @@ public class Score {
         return index;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setIndex(int position) {
+        this.index = position;
     }
 
     public String getDate() {

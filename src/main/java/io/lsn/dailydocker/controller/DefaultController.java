@@ -94,4 +94,14 @@ public class DefaultController {
         parser.cleanResourcesFolder();
     }
 
+    @RequestMapping(value = "/getScoresFromDB", method = RequestMethod.GET)
+    public List<Score> getScoresFromDB() {
+        return parser.getScoresFromDB();
+    }
+
+    @RequestMapping(value = "/truncateScoresTable", method = RequestMethod.POST)
+    public void truncateScoresTable() {
+        parser.truncateScoresTable();
+    }
+
 }

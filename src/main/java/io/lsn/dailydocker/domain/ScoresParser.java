@@ -47,7 +47,7 @@ public class ScoresParser {
         parseArchivalScores(scores);
         parseLatestScore(scores);
         scoresMapper.truncateScoresTable();
-//        scoresMapper.insertURLScores(scores);
+        scoresMapper.insertURLScores(scores);
         return scores;
     }
 
@@ -122,7 +122,7 @@ public class ScoresParser {
     }
 
     private boolean doesListContainsThisScore(List<Score> scores, Score score) {
-        return scores.stream().allMatch(s -> s.getDate().equalsIgnoreCase(score.getDate()));
+        return scores.stream().anyMatch(s -> s.getDate().equalsIgnoreCase(score.getDate()));
     }
 
     public List<String> getListOfArchivedScoreFiles() {
@@ -177,5 +177,13 @@ public class ScoresParser {
 
         files.stream().forEach(file -> file.delete());
         searchesMapper.saveSearchParameter(new SearchParameter("parser.cleanResourcesFolder", null, null, false));
+    }
+
+    public List<Score> getScoresFromDB() {
+        return scoresMapper.getScoresFromDB();
+    }
+
+    public void truncateScoresTable() {
+        scoresMapper.truncateScoresTable();
     }
 }
