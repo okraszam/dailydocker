@@ -43,6 +43,7 @@ public class ScoresParser {
     }
 
     public List<Score> parseURLScores() {
+        logger.info("method parseURLScores");
         List<Score> scores = new ArrayList<>();
         parseArchivalScores(scores);
         parseLatestScore(scores);
@@ -52,6 +53,7 @@ public class ScoresParser {
     }
 
     public List<Number> parseURLNumbers() {
+        logger.info("method parseURLNumbers");
         List<Number> numbers = new ArrayList<>();
         parseListOfNumbersWithOccurrence(buildListOfScoresArrays(parseURLScores()), numbers);
         return numbers;
@@ -126,9 +128,10 @@ public class ScoresParser {
     }
 
     public List<String> getListOfArchivedScoreFiles() {
+        logger.info("method getListOfArchivedScoreFiles");
         List<String> listOfFiles = new ArrayList<>();
         try {
-            Files.newDirectoryStream(Paths.get("src/main/resources/scores"), path -> path.toFile().isFile())
+            Files.newDirectoryStream(Paths.get("/usr/local/tomcat/scores"), path -> path.toFile().isFile())
                     .forEach(file -> listOfFiles.add(file.getFileName().toString()));
         } catch (Exception e) {
             logger.error("Something went wrong with listing files in app resources.\n" + e.toString());
@@ -139,6 +142,7 @@ public class ScoresParser {
     }
 
     public boolean checkIfFileExistInResources(String fileNameWithExtension) {
+        logger.info("method checkIfFileExistInResources");
         searchesMapper.saveSearchParameter(new SearchParameter("parser.checkIfFileExistInResources", null, null, false));
         return getListOfArchivedScoreFiles().stream().anyMatch(file -> file.equalsIgnoreCase(fileNameWithExtension));
     }
@@ -151,7 +155,7 @@ public class ScoresParser {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
         String formatted = now.format(formatter);
 
-        Path path = Paths.get("src/main/resources/scores/urlScores_" + formatted + ".txt");
+        Path path = Paths.get("/usr/local/tomcat/scores/urlScores_" + formatted + ".txt");
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             scores.stream()
                     .forEach(score -> {
@@ -169,21 +173,24 @@ public class ScoresParser {
     }
 
     public void cleanResourcesFolder() {
+        logger.info("method cleanResourcesFolder");
         List<String> fileNames = getListOfArchivedScoreFiles();
         List<File> files = new ArrayList<>();
 
         fileNames.stream()
-                .forEach(fileName -> files.add(new File("src/main/resources/scores/" + fileName)));
+                .forEach(fileName -> files.add(new File("/usr/local/tomcat/scores/" + fileName)));
 
         files.stream().forEach(file -> file.delete());
         searchesMapper.saveSearchParameter(new SearchParameter("parser.cleanResourcesFolder", null, null, false));
     }
 
     public List<Score> getScoresFromDB() {
+        logger.info("method getScoresFromDB");
         return scoresMapper.getScoresFromDB();
     }
 
     public void truncateScoresTable() {
+        logger.info("method truncateScoresTable");
         scoresMapper.truncateScoresTable();
     }
 }

@@ -1,7 +1,6 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
-/tomcat
-/database
+/docker/volumes
 
 ### STS ###
 .apt_generated

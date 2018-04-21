@@ -1,5 +1,26 @@
-version: '0.1'
+version: '3.6'
 services:
+  application:
+    container_name: "application"
+    image: tomcat:latest
+    environment:
+      JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
+      JDBC_USER: admin
+      JDBC_PASS: admin
+    ports:
+      - 8080:8080
+    volumes:
+      - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
+      - ./docker/volumes/application/scores:/usr/local/tomcat/scores
+      - shared_app_volume:/usr/local/tomcat/scores
+    links:
+      - database
+#    command: bash -c "cd myfolder && ln -s usr/local/tomcat/conf/Catalina/ ustawienia"
+#    command: bash -c "ln -s /usr/local/tomcat/conf/ /usr/local/tomcat/myfolder/link"
+#    command: bash -c "ln -s /usr/local/tomcat/conf/ /usr/local/tomcat/myfolder/link"
+#    command: bash -c "apt-get -y install cron"
+#    command: /usr/local/tomcat/myfolder/skrypt.sh
+
   database:
     container_name: "database"
     image: mysql:latest
@@ -11,18 +32,31 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./database:/docker-entrypoint-initdb.d
+      - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
+      - ./docker/volumes/database/myfolder:/myfolder
+      - shared_db_volume:/myfolder
+#    command: bash -c "cd myfolder && ln -s usr/local/tomcat/conf/Catalina/ ustawienia"
 
-  application:
-    container_name: "application"
-    image: tomcat:latest
-    environment:
-      JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
-      JDBC_USER: admin
-      JDBC_PASS: admin
-    ports:
-      - 80:8080
-    volumes:
-      - ./tomcat/webapps:/usr/local/tomcat/webapps
-    links:
-      - database
+#docker cp ./target/dailydocker-0.1.war application:usr/local/tomcat/scores !!!!!! kopiowanie paczki na etapie budowania kontenera xD, no i możnaby tym zrobić kopio
+  maintainer:
+      container_name: "maintainer"
+      image: tomcat:latest
+#      environment:
+#            JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
+#            JDBC_USER: admin
+#            JDBC_PASS: admin
+      ports:
+        - 8090:8080
+      volumes:
+        - shared_app_volume:/usr/local/tomcat/application_files
+        - shared_db_volume:/usr/local/tomcat/database_files
+        - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
+        - ./docker/volumes/maintainer/application_files:/usr/local/tomcat/application_files
+        - ./docker/volumes/maintainer/database_files:/usr/local/tomcat/database_files
+#      links:
+#        - database
+      depends_on:
+        - "application"
+volumes:
+  shared_app_volume:
+  shared_db_volume:

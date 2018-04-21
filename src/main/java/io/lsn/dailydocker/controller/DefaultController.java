@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,82 +27,171 @@ public class DefaultController {
     @Autowired
     private ScoresService service;
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public String greeter() {
+        logger.info("method greeter");
+        return "Greetings Dear User";
+    }
+
     @RequestMapping(value = "/getURLListOfDatesOfDraws", method = RequestMethod.GET)
     public List<String> getURLListOfDatesOfDraws() {
-        return service.getURLListOfDatesOfDraws();
+        List<String> list = new ArrayList<>();
+        try {
+            list = service.getURLListOfDatesOfDraws();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/getURLScoreForSpecificDate", method = RequestMethod.GET)
     public String[] getURLScoreForSpecificDate(@RequestParam("date") String date) {
-        return service.getURLScoreForSpecificDate(date);
+        String[] array;
+        try {
+            array = service.getURLScoreForSpecificDate(date);
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+            return new String[0];
+        }
+        return array;
     }
 
     @RequestMapping(value = "/getURLListOfNumbersWithOccurrence", method = RequestMethod.GET)
     public List<Number> getURLListOfNumbersWithOccurrence(@RequestParam("number") Integer number, @RequestParam("asc") boolean asc) {
-        return service.getURLListOfNumbersWithOccurrence(number, asc);
+        List<Number> list = new ArrayList<>();
+        try {
+            list = service.getURLListOfNumbersWithOccurrence(number, asc);
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/getURLListOfNumbersWithOccurrenceForSpecificDates", method = RequestMethod.GET)
     public List<Number> getURLListOfNumbersWithOccurrenceForSpecificDates(@RequestParam("beginning") String beginning, @RequestParam("end") String end, @RequestParam("asc") boolean asc) {
-        return service.getURLListOfNumbersWithOccurrenceForSpecificDates(beginning, end, asc);
+        List<Number> list = new ArrayList<>();
+        try {
+            list = service.getURLListOfNumbersWithOccurrenceForSpecificDates(beginning, end, asc);
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/getURLListOfScoresForSpecificDates", method = RequestMethod.GET)
     public List<Score> getURLListOfScoresForSpecificDates(@RequestParam("beginning") String beginning, @RequestParam("end") String end) {
-        return service.getURLListOfScoresForSpecificDates(beginning, end);
+        List<Score> list = new ArrayList<>();
+        try {
+            list = service.getURLListOfScoresForSpecificDates(beginning, end);
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/saveURLScoresForSpecificDateToFile", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public void saveURLScoresForSpecificDateToFile(@RequestBody SearchParameter parameter) throws IOException {
-        service.saveURLScoresForSpecificDateToFile(parameter.getBeginning(), parameter.getEnd());
+        try {
+            service.saveURLScoresForSpecificDateToFile(parameter.getBeginning(), parameter.getEnd());
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
     }
 
     @RequestMapping(value = "/getSearchesFromDB", method = RequestMethod.GET)
     public List<SearchParameter> getSearchesFromDB() {
-        return service.getSearchesFromDB();
+        List<SearchParameter> list = new ArrayList<>();
+        try {
+            list = service.getSearchesFromDB();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/truncateSearchesTable", method = RequestMethod.POST)
     public void truncateSearchesTable() {
-        service.truncateSearchesTable();
+        try {
+            service.truncateSearchesTable();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
     }
 
 
 
     @RequestMapping(value = "/parseURLScores", method = RequestMethod.GET)
     public List<Score> parseURLScores() {
-        return parser.parseURLScores();
+        List<Score> list = new ArrayList<>();
+        try {
+            list = parser.parseURLScores();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/parseURLNumbers", method = RequestMethod.GET)
     public List<Number> parseURLNumbers() {
-        return parser.parseURLNumbers();
+        List<Number> list = new ArrayList<>();
+        try {
+            list = parser.parseURLNumbers();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/getListOfArchivedScoreFiles", method = RequestMethod.GET)
     public List<String> getListOfArchivedScoreFiles() {
-        return parser.getListOfArchivedScoreFiles();
+        List<String> list = new ArrayList<>();
+        try {
+            list = parser.getListOfArchivedScoreFiles();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/checkIfFileExistInResources", method = RequestMethod.GET)
     public boolean checkIfFileExistInResources(@RequestParam("fileNameWithExtension") String fileNameWithExtension) {
-        return parser.checkIfFileExistInResources(fileNameWithExtension);
+        boolean value;
+        try {
+            value = parser.checkIfFileExistInResources(fileNameWithExtension);
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return false;
     }
 
     @RequestMapping(value = "/cleanResourcesFolder", method = RequestMethod.POST)
     public void cleanResourcesFolder() {
-        parser.cleanResourcesFolder();
+        try {
+            parser.cleanResourcesFolder();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
     }
 
     @RequestMapping(value = "/getScoresFromDB", method = RequestMethod.GET)
     public List<Score> getScoresFromDB() {
-        return parser.getScoresFromDB();
+        List<Score> list = new ArrayList<>();
+        try {
+            list = parser.getScoresFromDB();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/truncateScoresTable", method = RequestMethod.POST)
     public void truncateScoresTable() {
-        parser.truncateScoresTable();
+        try {
+            parser.truncateScoresTable();
+        } catch (java.lang.Throwable e) {
+            logger.error(e);
+        }
     }
 
 }
