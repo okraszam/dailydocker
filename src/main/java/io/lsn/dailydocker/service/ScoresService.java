@@ -9,7 +9,7 @@ import io.lsn.dailydocker.domain.ScoresParser;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import javax.annotation.ManagedBean;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +25,26 @@ public class ScoresService {
 
     @Autowired
     private SearchesMapper searchesMapper;
+
+    private String startDate;
+
+    private String endDate;
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
 
     private static final Logger logger = Logger.getLogger(DefaultController.class);
 

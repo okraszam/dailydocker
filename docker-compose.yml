@@ -1,7 +1,36 @@
 version: '3.6'
+
 services:
+  maintainer:
+      container_name: "maintainer"
+#      build:
+#        context: .
+#        dockerfile: /docker/maintainer/Dockerfile
+      image: tomcat:latest
+      ports:
+        - 8090:8080
+      volumes:
+#        - ./docker/volumes/maintainer/database_files:/usr/local/tomcat/!db_volume
+#        - ./docker/volumes/maintainer/application_files:/usr/local/tomcat/!app_volume
+        - db_logs:/usr/local/tomcat/!db_volume/db_logs
+        - db_config:/usr/local/tomcat/!db_volume/db_config
+        - db_content:/usr/local/tomcat/!db_volume/db_content
+        - app_logs:/usr/local/tomcat/!app_volume/app_logs
+        - app_config:/usr/local/tomcat/!app_volume/app_config
+        - app_content:/usr/local/tomcat/!app_volume/app_content
+        - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
+      depends_on:
+        - application
+        - database
+#      volumes_from:
+#        - application:ro
+#        - database:ro
+
   application:
     container_name: "application"
+#    build:
+#      context: .
+#      dockerfile: /docker/application/Dockerfile
     image: tomcat:latest
     environment:
       JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
@@ -10,19 +39,27 @@ services:
     ports:
       - 8080:8080
     volumes:
+      - app_logs:/usr/local/tomcat/logs_backup
+      - app_config:/usr/local/tomcat/config_backup
+      - app_content:/usr/local/tomcat/scores
+      - ./docker/volumes/application/cron:/usr/local/tomcat/cron
+#      - ./docker/volumes/application/scores:/usr/local/tomcat/scores
       - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
-      - ./docker/volumes/application/scores:/usr/local/tomcat/scores
-      - shared_app_volume:/usr/local/tomcat/scores
+#      - ./docker/volumes/application/logs_backup:/usr/local/tomcat/logs_backup
+#      - ./docker/volumes/application/config_backup:/usr/local/tomcat/config_backup
     links:
       - database
-#    command: bash -c "cd myfolder && ln -s usr/local/tomcat/conf/Catalina/ ustawienia"
-#    command: bash -c "ln -s /usr/local/tomcat/conf/ /usr/local/tomcat/myfolder/link"
-#    command: bash -c "ln -s /usr/local/tomcat/conf/ /usr/local/tomcat/myfolder/link"
-#    command: bash -c "apt-get -y install cron"
-#    command: /usr/local/tomcat/myfolder/skrypt.sh
+#    command:
+#      - bin/bash -c "crontab -u root /cron/logs_backup"
+#      - bin/bash -c "crontab -u root /cron/config_backup"
+#      - bin/bash -c "crontab -u root /cron/database_backup"
+#      - bin/bash -c "service cron start"
 
   database:
     container_name: "database"
+#    build:
+#      context: .
+#      dockerfile: /docker/database/Dockerfile
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
@@ -32,31 +69,20 @@ services:
     ports:
       - 3306:3306
     volumes:
+      - db_logs:/logs_backup
+      - db_config:/config_backup
+      - db_content:/database_backup
       - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
-      - ./docker/volumes/database/myfolder:/myfolder
-      - shared_db_volume:/myfolder
-#    command: bash -c "cd myfolder && ln -s usr/local/tomcat/conf/Catalina/ ustawienia"
+#      - ./docker/volumes/database/logs_backup:/logs_backup
+#      - ./docker/volumes/database/config_backup:/config_backup
+#      - ./docker/volumes/database/database_backup:/database_backup
+#    command: >
+#      - bin/bash -c "service cron start"
 
-#docker cp ./target/dailydocker-0.1.war application:usr/local/tomcat/scores !!!!!! kopiowanie paczki na etapie budowania kontenera xD, no i możnaby tym zrobić kopio
-  maintainer:
-      container_name: "maintainer"
-      image: tomcat:latest
-#      environment:
-#            JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
-#            JDBC_USER: admin
-#            JDBC_PASS: admin
-      ports:
-        - 8090:8080
-      volumes:
-        - shared_app_volume:/usr/local/tomcat/application_files
-        - shared_db_volume:/usr/local/tomcat/database_files
-        - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
-        - ./docker/volumes/maintainer/application_files:/usr/local/tomcat/application_files
-        - ./docker/volumes/maintainer/database_files:/usr/local/tomcat/database_files
-#      links:
-#        - database
-      depends_on:
-        - "application"
 volumes:
-  shared_app_volume:
-  shared_db_volume:
+  app_logs:
+  app_config:
+  app_content:
+  db_logs:
+  db_config:
+  db_content:

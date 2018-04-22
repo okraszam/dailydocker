@@ -6,16 +6,14 @@ import io.lsn.dailydocker.dictionary.Score;
 import io.lsn.dailydocker.dictionary.Number;
 import io.lsn.dailydocker.dictionary.SearchParameter;
 import org.apache.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import javax.annotation.ManagedBean;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

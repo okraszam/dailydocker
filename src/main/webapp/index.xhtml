@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+<h1>Spring MVC Web with Primefaces</h1>
+<h:form>
+    <h:selectOneMenu value="#{scoreService.startDate}">
+        <f:selectItems value="#{scoresService.getURLListOfDatesOfDraws()}"/>
+    </h:selectOneMenu>
+    <h:selectOneMenu value="#{scoreService.endDate}">
+        <f:selectItems value="#{scoresService.getURLListOfDatesOfDraws()}"/>
+    </h:selectOneMenu>
+    <h:commandButton value="Oblicz" actionListener="#{scoreService.getURLListOfNumbersWithOccurrenceForSpecificDates(startDate, endDate, false)}">
+    </h:commandButton>
+    <!--<p:dataTable var="customer" value="#{customerBean.customers}" widgetVar="customerTable" emptyMessage="No customers found" filteredValue="#{customerBean.filteredCustomers}">-->
+        <!--<p:column headerText="Id" sortBy="#{customer.customerId}" filterBy="#{customer.customerId}">-->
+            <!--<h:outputText value="#{customer.customerId}"/>-->
+        <!--</p:column>-->
+        <!--<p:column headerText="First Name" sortBy="#{customer.firstName}" filterBy="#{customer.firstName}">-->
+            <!--<h:outputText value="#{customer.firstName}"/>-->
+        <!--</p:column>-->
+        <!--<p:column headerText="Last Name" sortBy="#{customer.lastName}" filterBy="#{customer.lastName}">-->
+            <!--<h:outputText value="#{customer.lastName}"/>-->
+        <!--</p:column>-->
+    <!--</p:dataTable>-->
+</h:form>
+</body>
+</html>
