@@ -1,6 +1,7 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
-/docker/volumes
+/docker/volumes/application/webapps
+/docker/volumes/maintainer/webapps
 
 ### STS ###
 .apt_generated

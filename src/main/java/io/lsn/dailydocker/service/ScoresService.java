@@ -1,6 +1,7 @@
 package io.lsn.dailydocker.service;
 
 import io.lsn.dailydocker.controller.DefaultController;
+import io.lsn.dailydocker.dao.ScoresMapper;
 import io.lsn.dailydocker.dao.SearchesMapper;
 import io.lsn.dailydocker.dictionary.Number;
 import io.lsn.dailydocker.dictionary.Score;
@@ -23,18 +24,12 @@ public class ScoresService {
     private ScoresParser parser;
 
     @Autowired
+    private ScoresMapper scoresMapper;
+
+    @Autowired
     private SearchesMapper searchesMapper;
 
     private static final Logger logger = Logger.getLogger(DefaultController.class);
-
-    public ScoresService() {
-    }
-
-    @Autowired
-    public ScoresService(ScoresParser parser, SearchesMapper searchesMapper) {
-        this.parser = parser;
-        this.searchesMapper = searchesMapper;
-    }
 
     private int getIdOfScore(List<Score> scores, String date) {
         return scores.stream()

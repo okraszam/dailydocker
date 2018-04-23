@@ -8,7 +8,6 @@ import io.lsn.dailydocker.dictionary.SearchParameter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import javax.annotation.ManagedBean;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -31,14 +30,6 @@ public class ScoresParser {
 
     @Autowired
     private SearchesMapper searchesMapper;
-
-    public ScoresParser() {
-    }
-
-    @Autowired
-    public ScoresParser(ScoresMapper scoresMapper) {
-        this.scoresMapper = scoresMapper;
-    }
 
     public List<Score> parseURLScores() {
         logger.info("method parseURLScores");
