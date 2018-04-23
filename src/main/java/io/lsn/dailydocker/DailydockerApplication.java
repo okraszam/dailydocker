@@ -6,7 +6,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.web.WebApplicationInitializer;
 
 @SpringBootApplication
-public class DailydockerApplication extends SpringBootServletInitializer implements WebApplicationInitializer {
+public class DailydockerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DailydockerApplication.class, args);
