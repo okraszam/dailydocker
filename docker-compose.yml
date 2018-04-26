@@ -6,7 +6,6 @@ services:
       build:
         context: ./docker/maintainer/
         dockerfile: Dockerfile
-#      image: tomcat:latest
       ports:
         - 8090:8080
       volumes:
@@ -19,15 +18,6 @@ services:
         - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
         - ./docker/volumes/maintainer/app_backup:/usr/local/tomcat/app_backup
         - ./docker/volumes/maintainer/db_backup:/usr/local/tomcat/db_backup
-#        - db_logs:/usr/local/tomcat/!db_volume/db_logs
-#        - db_config:/usr/local/tomcat/!db_volume/db_config
-#        - db_content:/usr/local/tomcat/!db_volume/db_content
-#        - app_logs:/usr/local/tomcat/!app_volume/app_logs
-#        - app_config:/usr/local/tomcat/!app_volume/app_config
-#        - app_content:/usr/local/tomcat/!app_volume/app_content
-#        - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
-#        - ./docker/volumes/maintainer/application_backup:/usr/local/tomcat/application_backup
-#        - ./docker/volumes/maintainer/database_backup:/usr/local/tomcat/database_backup
       depends_on:
         - application
         - database
@@ -35,7 +25,7 @@ services:
   application:
     container_name: "application"
     build:
-      context: ./docker/application
+      context: ./docker/application/
       dockerfile: Dockerfile
 #    image: tomcat:latest
     environment:
@@ -47,21 +37,15 @@ services:
     volumes:
       - app_logs:/usr/local/tomcat/logs
       - app_config:/usr/local/tomcat/conf
-      - app_content:/usr/local/tomcat/scores
+      - app_content:/usr/local/tomcat/content
+      - ./docker/volumes/application/scores:/usr/local/tomcat/scores
       - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
-#      - app_logs:/usr/local/tomcat/logs_backup
-#      - app_config:/usr/local/tomcat/config_backup
-#      - app_content:/usr/local/tomcat/scores
-#      - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
     links:
       - database
 
   database:
     container_name: "database"
-    build:
-      context: ./docker/database
-      dockerfile: Dockerfile
-#    image: mysql:latest
+    image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
       MYSQL_DATABASE: dailydockerdb
@@ -74,11 +58,6 @@ services:
       - db_config:/etc/mysql
       - db_content:/var/lib/mysql
       - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
-#      - db_logs:/var/log/logs_backup
-#      - db_config:/etc/config_backup
-#      - db_content:/var/lib/database_backup
-#      - ./docker/volumes/database/content:/var/lib/mysql
-#      - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
 
 volumes:
   app_logs:
