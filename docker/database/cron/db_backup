@@ -1,0 +1,1 @@
+5 * * * * bash /cron/db_backup.sh

@@ -3,35 +3,41 @@ version: '3.6'
 services:
   maintainer:
       container_name: "maintainer"
-#      build:
-#        context: .
-#        dockerfile: /docker/maintainer/Dockerfile
-      image: tomcat:latest
+      build:
+        context: ./docker/maintainer/
+        dockerfile: Dockerfile
+#      image: tomcat:latest
       ports:
         - 8090:8080
       volumes:
-#        - ./docker/volumes/maintainer/database_files:/usr/local/tomcat/!db_volume
-#        - ./docker/volumes/maintainer/application_files:/usr/local/tomcat/!app_volume
-        - db_logs:/usr/local/tomcat/!db_volume/db_logs
-        - db_config:/usr/local/tomcat/!db_volume/db_config
-        - db_content:/usr/local/tomcat/!db_volume/db_content
-        - app_logs:/usr/local/tomcat/!app_volume/app_logs
-        - app_config:/usr/local/tomcat/!app_volume/app_config
-        - app_content:/usr/local/tomcat/!app_volume/app_content
+        - db_logs:/usr/local/tomcat/db_volume/db_logs
+        - db_config:/usr/local/tomcat/db_volume/db_config
+        - db_content:/usr/local/tomcat/db_volume/db_content
+        - app_logs:/usr/local/tomcat/app_volume/app_logs
+        - app_config:/usr/local/tomcat/app_volume/app_config
+        - app_content:/usr/local/tomcat/app_volume/app_content
         - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
+        - ./docker/volumes/maintainer/app_backup:/usr/local/tomcat/app_backup
+        - ./docker/volumes/maintainer/db_backup:/usr/local/tomcat/db_backup
+#        - db_logs:/usr/local/tomcat/!db_volume/db_logs
+#        - db_config:/usr/local/tomcat/!db_volume/db_config
+#        - db_content:/usr/local/tomcat/!db_volume/db_content
+#        - app_logs:/usr/local/tomcat/!app_volume/app_logs
+#        - app_config:/usr/local/tomcat/!app_volume/app_config
+#        - app_content:/usr/local/tomcat/!app_volume/app_content
+#        - ./docker/volumes/maintainer/webapps:/usr/local/tomcat/webapps
+#        - ./docker/volumes/maintainer/application_backup:/usr/local/tomcat/application_backup
+#        - ./docker/volumes/maintainer/database_backup:/usr/local/tomcat/database_backup
       depends_on:
         - application
         - database
-#      volumes_from:
-#        - application:ro
-#        - database:ro
 
   application:
     container_name: "application"
-#    build:
-#      context: .
-#      dockerfile: /docker/application/Dockerfile
-    image: tomcat:latest
+    build:
+      context: ./docker/application
+      dockerfile: Dockerfile
+#    image: tomcat:latest
     environment:
       JDBC_URL: jdbc:mysql://database:3306/dailydockerdb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
       JDBC_USER: admin
@@ -39,28 +45,23 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - app_logs:/usr/local/tomcat/logs_backup
-      - app_config:/usr/local/tomcat/config_backup
+      - app_logs:/usr/local/tomcat/logs
+      - app_config:/usr/local/tomcat/conf
       - app_content:/usr/local/tomcat/scores
-      - ./docker/volumes/application/cron:/usr/local/tomcat/cron
-#      - ./docker/volumes/application/scores:/usr/local/tomcat/scores
       - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
-#      - ./docker/volumes/application/logs_backup:/usr/local/tomcat/logs_backup
-#      - ./docker/volumes/application/config_backup:/usr/local/tomcat/config_backup
+#      - app_logs:/usr/local/tomcat/logs_backup
+#      - app_config:/usr/local/tomcat/config_backup
+#      - app_content:/usr/local/tomcat/scores
+#      - ./docker/volumes/application/webapps:/usr/local/tomcat/webapps
     links:
       - database
-#    command:
-#      - bin/bash -c "crontab -u root /cron/logs_backup"
-#      - bin/bash -c "crontab -u root /cron/config_backup"
-#      - bin/bash -c "crontab -u root /cron/database_backup"
-#      - bin/bash -c "service cron start"
 
   database:
     container_name: "database"
-#    build:
-#      context: .
-#      dockerfile: /docker/database/Dockerfile
-    image: mysql:latest
+    build:
+      context: ./docker/database
+      dockerfile: Dockerfile
+#    image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: qwerty
       MYSQL_DATABASE: dailydockerdb
@@ -69,15 +70,15 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - db_logs:/logs_backup
-      - db_config:/config_backup
-      - db_content:/database_backup
+      - db_logs:/var/log/mysql
+      - db_config:/etc/mysql
+      - db_content:/var/lib/mysql
       - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
-#      - ./docker/volumes/database/logs_backup:/logs_backup
-#      - ./docker/volumes/database/config_backup:/config_backup
-#      - ./docker/volumes/database/database_backup:/database_backup
-#    command: >
-#      - bin/bash -c "service cron start"
+#      - db_logs:/var/log/logs_backup
+#      - db_config:/etc/config_backup
+#      - db_content:/var/lib/database_backup
+#      - ./docker/volumes/database/content:/var/lib/mysql
+#      - ./docker/volumes/database/script:/docker-entrypoint-initdb.d
 
 volumes:
   app_logs:
